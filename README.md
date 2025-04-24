@@ -1,4 +1,4 @@
-# CCBF
+# CBF
 
 CBF is a module for the [edra](https://github.com/solomonarul/edra) emulator, designed with simplicity and agnosticism first.
 
