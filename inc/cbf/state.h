@@ -7,13 +7,37 @@
 
 typedef uint8_t(*bf_input_f)(void*);
 typedef void(*bf_output_f)(void*, uint8_t);
+typedef void(*bf_store_f)(void*, uint16_t, uint8_t);
+typedef uint8_t(*bf_load_f)(void*, uint16_t);
+
+typedef enum bf_operation
+{
+    // Basic instructions, no optimizations
+    BF_INSTRUCTION_INC = 0,
+    BF_INSTRUCTION_DEC,
+    BF_INSTRUCTION_NEXT,
+    BF_INSTRUCTION_PREV,
+    BF_INSTRUCTION_JUMP,
+    BF_INSTRUCTION_JUMP_BACK,
+    BF_INSTRUCTION_INPUT,
+    BF_INSTRUCTION_OUTPUT,
+    BF_INSTRUCTION_END,
+
+    // Optimized instructions
+} bf_operation_t;
+
+typedef struct bf_instruction
+{
+    bf_operation_t op;
+    uint16_t arg;
+} bf_instruction_t;
 
 struct bf_state
 {
-    uint16_t i;
-    uint8_t memory[0x10000];
     bf_input_f in;
     bf_output_f out;
+    bf_store_f store;
+    bf_load_f load;
     void* aux_arg;
 };
 typedef struct bf_state bf_state_t;

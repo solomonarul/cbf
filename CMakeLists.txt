@@ -30,6 +30,12 @@ target_include_directories(
         "inc/cbf"
 )
 
+target_link_libraries(
+    ${PROJECT_NAME}
+    PUBLIC
+        auxum
+)
+
 set_property(
     TARGET ${PROJECT_NAME}
     PROPERTY C_STANDARD 17
