@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <auxum/data.h>
 
 typedef uint8_t(*bf_input_f)(void*);
 typedef void(*bf_output_f)(void*, uint8_t);
@@ -17,7 +18,7 @@ typedef enum bf_operation
     BF_INSTRUCTION_DEC,
     BF_INSTRUCTION_NEXT,
     BF_INSTRUCTION_PREV,
-    BF_INSTRUCTION_JUMP,
+    BF_INSTRUCTION_JUMP_START,
     BF_INSTRUCTION_JUMP_BACK,
     BF_INSTRUCTION_INPUT,
     BF_INSTRUCTION_OUTPUT,
@@ -34,6 +35,8 @@ typedef struct bf_instruction
 
 struct bf_state
 {
+    dynarray_t program;
+    uint16_t index;
     bf_input_f in;
     bf_output_f out;
     bf_store_f store;

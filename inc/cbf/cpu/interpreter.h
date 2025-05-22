@@ -10,7 +10,6 @@ struct bf_interpreter
 {
     bool running;
     uint16_t pc;
-    dynarray_t instructions; 
     bf_state_t* state;
 };
 typedef struct bf_interpreter bf_interpreter_t;
