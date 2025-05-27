@@ -33,7 +33,7 @@ typedef struct bf_instruction
     uint16_t arg;
 } bf_instruction_t;
 
-struct bf_state
+typedef struct bf_state
 {
     dynarray_t program;
     uint16_t index;
@@ -42,9 +42,9 @@ struct bf_state
     bf_store_f store;
     bf_load_f load;
     void* aux_arg;
-};
-typedef struct bf_state bf_state_t;
+} bf_state_t;
 
 void bf_state_init(bf_state_t* self);
+void bf_state_load_program(bf_state_t* self, char* const program);
 
 #endif

@@ -13,12 +13,6 @@ void bf_interpreter_init(bf_interpreter_t* self)
     self->pc = 0;
 }
 
-void bf_interpreter_load(bf_interpreter_t* self, const char* program)
-{
-    UNUSED(self);
-    UNUSED(program);
-}
-
 void bf_interpreter_step(bf_interpreter_t* self)
 {
     bf_state_t* const state = self->state;
