@@ -2,15 +2,12 @@
 #include "state.h"
 
 #include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <auxum/std.h>
 
 void bf_interpreter_init(bf_interpreter_t* self)
 {
-    self->state = NULL;
+    *self = (bf_interpreter_t){0};
     self->running = true;
-    self->pc = 0;
 }
 
 void bf_interpreter_step(bf_interpreter_t* self)
@@ -26,23 +23,27 @@ void bf_interpreter_step(bf_interpreter_t* self)
             self->state->store(self->state->aux_arg, self->state->index, ++value);
             break;   
         }
+
     case BF_INSTRUCTION_DEC:
         {
             uint8_t value = self->state->load(self->state->aux_arg, self->state->index);
             self->state->store(self->state->aux_arg, self->state->index, --value);
             break;   
         }
+
     case BF_INSTRUCTION_NEXT:
         {
             self->state->index++;
             break;
         }
+
     case BF_INSTRUCTION_PREV:
         {
             self->state->index--;
             break;
         }
-        case BF_INSTRUCTION_JUMP_START:
+    
+    case BF_INSTRUCTION_JUMP_START:
         {
             if (state->load(state->aux_arg, state->index) == 0)
             {
@@ -78,11 +79,27 @@ void bf_interpreter_step(bf_interpreter_t* self)
             state->store(state->aux_arg, state->index, self->state->in(self->state->aux_arg));
             break;
         }
+
     case BF_INSTRUCTION_OUTPUT:
         {
             self->state->out(self->state->aux_arg, self->state->load(self->state->aux_arg, self->state->index));
             break;
         }
+
+    case BF_INSTRUCTION_ADD:
+        {
+            uint8_t value = self->state->load(self->state->aux_arg, self->state->index);
+            value += (int16_t)current->arg;
+            self->state->store(self->state->aux_arg, self->state->index, value);
+            break;
+        }
+
+    case BF_INSTRUCTION_MOVE:
+        {
+            self->state->index += (int16_t)current->arg;
+            break;
+        }
+        
     case BF_INSTRUCTION_END:
         {
             self->running = false;

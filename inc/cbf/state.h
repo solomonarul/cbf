@@ -25,6 +25,8 @@ typedef enum bf_operation
     BF_INSTRUCTION_END,
 
     // Optimized instructions
+    BF_INSTRUCTION_ADD,
+    BF_INSTRUCTION_MOVE
 } bf_operation_t;
 
 typedef struct bf_instruction
@@ -41,6 +43,10 @@ typedef struct bf_state
     bf_output_f out;
     bf_store_f store;
     bf_load_f load;
+    enum {
+        BF_OPTIMIZATIONS_NONE = 0,
+        BF_OPTIMIZATIONS_INSTRUCTION_FOLDING
+    } optimizations;
     void* aux_arg;
 } bf_state_t;
 
