@@ -5,7 +5,8 @@ project(cbf)
 file(
     GLOB_RECURSE
     ${PROJECT_NAME}_SRC
-        "src/*.c"
+        "src/state.c"
+        "src/cpu/interpreter.c"
 )
 
 file(
@@ -19,6 +20,19 @@ add_library(
     STATIC
         ${${PROJECT_NAME}_SRC}
 )
+
+if(ENABLE_JIT_LIGHTNING)
+    target_sources(
+        ${PROJECT_NAME}
+        PRIVATE
+            "src/cpu/jit_lightning.c"
+    )
+    target_compile_definitions(
+        ${PROJECT_NAME}
+        PRIVATE
+            JIT_LIGHTNING
+    )
+endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 

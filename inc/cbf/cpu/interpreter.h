@@ -13,7 +13,7 @@ typedef struct bf_interpreter
     bf_state_t* state;
 } bf_interpreter_t;
 
-void bf_interpreter_init(bf_interpreter_t* self);
+void bf_interpreter_init(bf_interpreter_t* self, bf_state_t* state);
 void bf_interpreter_step(bf_interpreter_t* self);
 
 #endif

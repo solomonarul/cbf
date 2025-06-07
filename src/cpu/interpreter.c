@@ -4,14 +4,16 @@
 #include <assert.h>
 #include <auxum/std.h>
 
-void bf_interpreter_init(bf_interpreter_t* self)
+void bf_interpreter_init(bf_interpreter_t* self, bf_state_t* state)
 {
     *self = (bf_interpreter_t){0};
     self->running = true;
+    self->state = state;
 }
 
 void bf_interpreter_step(bf_interpreter_t* self)
 {
+    if(!self->running) return;
     bf_state_t* const state = self->state;
     bf_instruction_t* current = dynarray_get(state->program, self->pc);
     self->pc++;
