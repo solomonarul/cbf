@@ -15,7 +15,7 @@ void bf_interpreter_step(bf_interpreter_t* self)
 {
     if(!self->running) return;
     bf_state_t* const state = self->state;
-    bf_instruction_t* current = dynarray_get(state->program, self->pc);
+    bf_instruction_t* current = dynarray_get(self->program, self->pc);
     self->pc++;
     switch(current->op)
     {
@@ -50,9 +50,9 @@ void bf_interpreter_step(bf_interpreter_t* self)
             if (state->load(state->aux_arg, state->index) == 0)
             {
                 int depth = 1;
-                while (depth > 0 && self->pc < state->program.size)
+                while (depth > 0 && self->pc < self->program.size)
                 {
-                    bf_instruction_t* instr = dynarray_get(state->program, self->pc++);
+                    bf_instruction_t* instr = dynarray_get(self->program, self->pc++);
                     if (instr->op == BF_INSTRUCTION_JUMP_START) depth++;
                     else if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth--;
                 }
@@ -66,9 +66,9 @@ void bf_interpreter_step(bf_interpreter_t* self)
             {
                 int depth = 1;
                 self->pc -= 2;
-                while (depth > 0 && self->pc < state->program.size)
+                while (depth > 0 && self->pc < self->program.size)
                 {
-                    bf_instruction_t* instr = dynarray_get(state->program, self->pc--);
+                    bf_instruction_t* instr = dynarray_get(self->program, self->pc--);
                     if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth++;
                     else if (instr->op == BF_INSTRUCTION_JUMP_START) depth--;
                 }
@@ -108,4 +108,9 @@ void bf_interpreter_step(bf_interpreter_t* self)
             break;
         }
     }
+}
+
+void bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations)
+{
+    self->program = bf_compile_program(rom, optimizations);
 }

@@ -35,22 +35,24 @@ typedef struct bf_instruction
     uint16_t arg;
 } bf_instruction_t;
 
+typedef enum bf_optimizations {
+    BF_OPTIMIZATIONS_NONE = 0,
+    BF_OPTIMIZATIONS_INSTRUCTION_FOLDING,
+    BF_OPTIMIZATIONS_ALL
+} bf_optimizations_t;
+
 typedef struct bf_state
 {
-    dynarray_t program;
     uint16_t index;
     bf_input_f in;
     bf_output_f out;
     bf_store_f store;
     bf_load_f load;
-    enum {
-        BF_OPTIMIZATIONS_NONE = 0,
-        BF_OPTIMIZATIONS_INSTRUCTION_FOLDING
-    } optimizations;
+    bf_optimizations_t optimizations;
     void* aux_arg;
 } bf_state_t;
 
 void bf_state_init(bf_state_t* self);
-void bf_state_load_program(bf_state_t* self, char* const program);
+dynarray_t bf_compile_program(char* const program, bf_optimizations_t optimizations);
 
 #endif

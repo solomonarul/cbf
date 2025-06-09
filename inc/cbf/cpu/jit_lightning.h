@@ -19,11 +19,12 @@ typedef struct bf_jit_lightning
     bool running;
     bf_state_t* state;
     jit_state_t* jit_state;
-    uint8_t memory[0x10000];
+    uint8_t* memory;
     bf_jit_function_t code;
 } bf_jit_lightning_t;
 
 void bf_jit_lightning_init(bf_jit_lightning_t* self, bf_state_t* state);
 void bf_jit_lightning_step(bf_jit_lightning_t* self);
+void bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, bf_optimizations_t optimizations);
 
 #endif
