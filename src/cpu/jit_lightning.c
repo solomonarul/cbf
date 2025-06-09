@@ -21,7 +21,7 @@ void bf_jit_lightning_step(bf_jit_lightning_t* self)
     self->running = false;
 }
 
-void bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, bf_optimizations_t optimizations)
+size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, bf_optimizations_t optimizations)
 {
     dynarray_t program = bf_compile_program(rom, optimizations);
 
@@ -138,4 +138,6 @@ void bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, bf
     dynarray_free(loopStartLabel);
     dynarray_free(loopEndLabel);
     #undef _jit
+
+    return program.size;
 }

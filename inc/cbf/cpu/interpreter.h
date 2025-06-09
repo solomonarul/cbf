@@ -4,6 +4,7 @@
 
 #include "../state.h"
 #include <stdbool.h>
+#include <stddef.h>
 #include <auxum/data/dynarray.h>
 
 typedef struct bf_interpreter
@@ -16,6 +17,6 @@ typedef struct bf_interpreter
 
 void bf_interpreter_init(bf_interpreter_t* self, bf_state_t* state);
 void bf_interpreter_step(bf_interpreter_t* self);
-void bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations);
+size_t bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations);
 
 #endif

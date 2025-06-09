@@ -110,7 +110,8 @@ void bf_interpreter_step(bf_interpreter_t* self)
     }
 }
 
-void bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations)
+size_t bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations)
 {
     self->program = bf_compile_program(rom, optimizations);
+    return self->program.size;
 }
