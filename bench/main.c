@@ -1,9 +1,5 @@
-#include "cbf/state.h"
 #include <auxum/std.h>
-#ifdef JIT_LIGHTNING
-#include "lightning.c"
-#endif
-#include "interpreter.c"
+#include "glue.c"
 
 size_t TEST_COUNT = 2;
 
@@ -24,24 +20,6 @@ char* test_sources[] = {
     alphabet,
     mandlebrot,
 };
-
-typedef struct {
-    char* test_name;
-    char* test_source;
-    int optimization_level;
-} ThreadArgs;
-
-int run_bench(void* ptr)
-{
-    ThreadArgs* const args = (ThreadArgs*)ptr;
-
-#ifdef JIT_LIGHTNING
-    bf_lightning_run_bench(args->test_name, args->test_source, args->optimization_level);
-#endif
-    bf_interpreter_run_bench(args->test_name, args->test_source, args->optimization_level);
-
-    return 0;
-}
 
 int main(int argc, char* argv[])
 {
