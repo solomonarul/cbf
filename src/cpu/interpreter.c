@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <auxum/std.h>
+#include <stdio.h>
 
 void bf_interpreter_init(bf_interpreter_t* self, bf_state_t* state)
 {
@@ -21,33 +22,31 @@ void bf_interpreter_step(bf_interpreter_t* self)
     {
     case BF_INSTRUCTION_INC:
         {
-            uint8_t value = self->state->load(self->state->aux_arg, self->state->index);
-            self->state->store(self->state->aux_arg, self->state->index, ++value);
+            self->memory[self->index]++;
             break;   
         }
 
     case BF_INSTRUCTION_DEC:
         {
-            uint8_t value = self->state->load(self->state->aux_arg, self->state->index);
-            self->state->store(self->state->aux_arg, self->state->index, --value);
+            self->memory[self->index]--;
             break;   
         }
 
     case BF_INSTRUCTION_NEXT:
         {
-            self->state->index++;
+            self->index++;
             break;
         }
 
     case BF_INSTRUCTION_PREV:
         {
-            self->state->index--;
+            self->index--;
             break;
         }
     
     case BF_INSTRUCTION_JUMP_START:
         {
-            if (state->load(state->aux_arg, state->index) == 0)
+            if (self->memory[self->index] == 0)
             {
                 int depth = 1;
                 while (depth > 0 && self->pc < self->program.size)
@@ -62,7 +61,7 @@ void bf_interpreter_step(bf_interpreter_t* self)
     
     case BF_INSTRUCTION_JUMP_BACK:
         {
-            if (state->load(state->aux_arg, state->index) != 0)
+            if (self->memory[self->index] != 0)
             {
                 int depth = 1;
                 self->pc -= 2;
@@ -78,27 +77,27 @@ void bf_interpreter_step(bf_interpreter_t* self)
         }
     case BF_INSTRUCTION_INPUT:
         {
-            state->store(state->aux_arg, state->index, self->state->in(self->state->aux_arg));
+            if(state->in != NULL)
+                self->memory[self->index] = state->in(state->aux_arg);
             break;
         }
 
     case BF_INSTRUCTION_OUTPUT:
         {
-            self->state->out(self->state->aux_arg, self->state->load(self->state->aux_arg, self->state->index));
+            if(state->out != NULL)
+                state->out(state->aux_arg, self->memory[self->index]);
             break;
         }
 
     case BF_INSTRUCTION_ADD:
         {
-            uint8_t value = self->state->load(self->state->aux_arg, self->state->index);
-            value += (int16_t)current->arg;
-            self->state->store(self->state->aux_arg, self->state->index, value);
+            self->memory[self->index] += (int16_t)current->arg;
             break;
         }
 
     case BF_INSTRUCTION_MOVE:
         {
-            self->state->index += (int16_t)current->arg;
+            self->index += (int16_t)current->arg;
             break;
         }
         

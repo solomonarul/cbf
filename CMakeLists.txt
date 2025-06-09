@@ -21,9 +21,30 @@ if(ENABLE_JIT_LIGHTNING)
         PRIVATE
             "src/cpu/jit_lightning.c"
     )
+    if(DEFINED ENABLE_BUILD_LIGHTNING)
+        set(LIGHTNING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/lightning-install/include)
+        set(LIGHTNING_LIBRARY ${CMAKE_BINARY_DIR}/lightning-install/lib/liblightning.a)
+        target_link_libraries(
+            ${PROJECT_NAME}
+            PUBLIC
+                ${LIGHTNING_LIBRARY}
+        )
+        target_include_directories(
+            ${PROJECT_NAME}
+            PUBLIC
+                "inc"
+                ${LIGHTNING_INCLUDE_DIR}
+        )
+    else()
+        target_link_libraries(
+            ${PROJECT_NAME}
+            PUBLIC
+                lightning
+        )
+    endif()
     target_compile_definitions(
         ${PROJECT_NAME}
-        PRIVATE
+        PUBLIC
             JIT_LIGHTNING
     )
 endif()
@@ -46,7 +67,7 @@ target_link_libraries(
 
 set_property(
     TARGET ${PROJECT_NAME}
-    PROPERTY C_STANDARD 17
+    PROPERTY C_STANDARD 23
 )
 
 if(BUILD_TESTS)
@@ -71,7 +92,7 @@ target_link_libraries(
 
 set_property(
     TARGET ${PROJECT_NAME}_test
-    PROPERTY C_STANDARD 17
+    PROPERTY C_STANDARD 23
 )
 endif()
 
@@ -79,7 +100,7 @@ if(BUILD_BENCHMARKS)
 file(
     GLOB_RECURSE
     ${PROJECT_NAME}_BENCH_SRC
-        "bench/*.c"
+        "bench/main.c"
 )
 
 add_executable(
@@ -89,15 +110,29 @@ add_executable(
 
 target_compile_options(${PROJECT_NAME}_bench PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
+if(ENABLE_JIT_LIGHTNING)
+    target_compile_definitions(
+        ${PROJECT_NAME}_bench
+        PUBLIC
+            JIT_LIGHTNING
+    )
+endif()
+
+if(NOT "${SDL3_PATH}" STREQUAL "")
+find_package(SDL3 REQUIRED PATHS ${SDL3_PATH})
+else()
+find_package(SDL3 REQUIRED)
+endif()
 target_link_libraries(
     ${PROJECT_NAME}_bench
     PUBLIC
         ${PROJECT_NAME}
+        SDL3::SDL3           # For accurate timing.
 )
 
 set_property(
     TARGET ${PROJECT_NAME}_bench
-    PROPERTY C_STANDARD 17
+    PROPERTY C_STANDARD 23
 )
 endif()
 

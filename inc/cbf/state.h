@@ -43,11 +43,8 @@ typedef enum bf_optimizations {
 
 typedef struct bf_state
 {
-    uint16_t index;
     bf_input_f in;
     bf_output_f out;
-    bf_store_f store;
-    bf_load_f load;
     bf_optimizations_t optimizations;
     void* aux_arg;
 } bf_state_t;

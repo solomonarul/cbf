@@ -6,7 +6,8 @@ That means that it is incredibly simple to run it on your own by just creating y
 
 ### Examples:
 
-- Check out [edra](https://github.com/solomonarul/edra)'s usage [here.](https://github.com/solomonarul/edra/blob/main/inc/drivers/bf.h)
+- For a minimal sample, check out the [benchmarks](./bench/).
+- Also check out [edra](https://github.com/solomonarul/edra)'s usage [here.](https://github.com/solomonarul/edra/blob/main/inc/drivers/bf.h)
 
 ---
 

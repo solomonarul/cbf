@@ -11,6 +11,8 @@ typedef struct bf_interpreter
 {
     bool running;
     uint16_t pc;
+    uint16_t index;
+    uint8_t* memory;
     dynarray_t program;
     bf_state_t* state;
 } bf_interpreter_t;

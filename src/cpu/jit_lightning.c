@@ -100,19 +100,25 @@ size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, 
         }
 
         case BF_INSTRUCTION_INPUT:
-            jit_prepare();
-            jit_pushargi((uintptr_t)(&self));
-            jit_finishi((jit_pointer_t)(uintptr_t)self->state->in);
-            jit_retval_c(JIT_R0);
-            jit_str_c(JIT_V0, JIT_R0);
+            if(self->state->in != NULL)
+            {
+                jit_prepare();
+                jit_pushargi((uintptr_t)(&self));
+                jit_finishi((jit_pointer_t)(uintptr_t)self->state->in);
+                jit_retval_c(JIT_R0);
+                jit_str_c(JIT_V0, JIT_R0);
+            }
             break;
 
         case BF_INSTRUCTION_OUTPUT:
-            jit_ldr_c(JIT_R0, JIT_V0);
-            jit_prepare();
-            jit_pushargi((uintptr_t)(&self));
-            jit_pushargr_c(JIT_R0);
-            jit_finishi((jit_pointer_t)(uintptr_t)self->state->out);
+            if(self->state->out != NULL)
+            {
+                jit_ldr_c(JIT_R0, JIT_V0);
+                jit_prepare();
+                jit_pushargi((uintptr_t)(&self));
+                jit_pushargr_c(JIT_R0);
+                jit_finishi((jit_pointer_t)(uintptr_t)self->state->out);
+            }
             break;
 
         case BF_INSTRUCTION_END:
@@ -133,7 +139,7 @@ size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, 
     }
     jit_epilog();
     self->code = (bf_jit_function_t)((uintptr_t)jit_emit());
-    jit_print();
+    // jit_print();
     jit_clear_state();
     dynarray_free(loopStartLabel);
     dynarray_free(loopEndLabel);
