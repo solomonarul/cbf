@@ -21,27 +21,11 @@ if(ENABLE_JIT_LIGHTNING)
         PRIVATE
             "src/cpu/jit_lightning.c"
     )
-    if(DEFINED ENABLE_BUILD_LIGHTNING)
-        set(LIGHTNING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/lightning-install/include)
-        set(LIGHTNING_LIBRARY ${CMAKE_BINARY_DIR}/lightning-install/lib/liblightning.a)
-        target_link_libraries(
-            ${PROJECT_NAME}
-            PUBLIC
-                ${LIGHTNING_LIBRARY}
-        )
-        target_include_directories(
-            ${PROJECT_NAME}
-            PUBLIC
-                "inc"
-                ${LIGHTNING_INCLUDE_DIR}
-        )
-    else()
-        target_link_libraries(
-            ${PROJECT_NAME}
-            PUBLIC
-                lightning
-        )
-    endif()
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PUBLIC
+            lightning
+    )
     target_compile_definitions(
         ${PROJECT_NAME}
         PUBLIC
