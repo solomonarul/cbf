@@ -1,6 +1,5 @@
 #include "cbf/state.h"
-
-#define UNUSED(X) ((void)(X))
+#include <auxum/std.h>
 
 int main(int argc, char* argv[])
 {
