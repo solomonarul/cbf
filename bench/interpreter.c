@@ -7,10 +7,10 @@
 void bf_interpreter_run_bench(char* const name, char* const code, bf_optimizations_t optimizations)
 {
     bf_state_t state = {0};
+    uint8_t memory[0x10000] = {0};
+    state.memory = memory;
     bf_interpreter_t interpreter = {0};
     bf_interpreter_init(&interpreter, &state);
-    uint8_t memory[0x10000] = {0};
-    interpreter.memory = memory;
 
     size_t program_size = bf_interpreter_load_program(&interpreter, code, optimizations);
 

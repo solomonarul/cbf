@@ -22,13 +22,13 @@ void bf_interpreter_step(bf_interpreter_t* self)
     {
     case BF_INSTRUCTION_INC:
         {
-            self->memory[self->index]++;
+            state->memory[self->index]++;
             break;   
         }
 
     case BF_INSTRUCTION_DEC:
         {
-            self->memory[self->index]--;
+            state->memory[self->index]--;
             break;   
         }
 
@@ -46,7 +46,7 @@ void bf_interpreter_step(bf_interpreter_t* self)
     
     case BF_INSTRUCTION_JUMP_START:
         {
-            if (self->memory[self->index] == 0)
+            if (state->memory[self->index] == 0)
             {
                 int depth = 1;
                 while (depth > 0 && self->pc < self->program.size)
@@ -61,7 +61,7 @@ void bf_interpreter_step(bf_interpreter_t* self)
     
     case BF_INSTRUCTION_JUMP_BACK:
         {
-            if (self->memory[self->index] != 0)
+            if (state->memory[self->index] != 0)
             {
                 int depth = 1;
                 self->pc -= 2;
@@ -78,20 +78,20 @@ void bf_interpreter_step(bf_interpreter_t* self)
     case BF_INSTRUCTION_INPUT:
         {
             if(state->in != NULL)
-                self->memory[self->index] = state->in(state->aux_arg);
+                state->memory[self->index] = state->in(state->aux_arg);
             break;
         }
 
     case BF_INSTRUCTION_OUTPUT:
         {
             if(state->out != NULL)
-                state->out(state->aux_arg, self->memory[self->index]);
+                state->out(state->aux_arg, state->memory[self->index]);
             break;
         }
 
     case BF_INSTRUCTION_ADD:
         {
-            self->memory[self->index] += (int16_t)current->arg;
+            state->memory[self->index] += (int16_t)current->arg;
             break;
         }
 

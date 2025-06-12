@@ -40,7 +40,7 @@ size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, 
     #define _jit self->jit_state
 
     jit_prolog();
-    jit_movi(JIT_V0, (jit_word_t)self->memory);
+    jit_movi(JIT_V0, (jit_word_t)self->state->memory);
 
     jit_pointer_t start_jump;
 

@@ -19,7 +19,6 @@ typedef struct bf_jit_lightning
     bool running;
     bf_state_t* state;
     jit_state_t* jit_state;
-    uint8_t* memory;
     bf_jit_function_t code;
 } bf_jit_lightning_t;
 

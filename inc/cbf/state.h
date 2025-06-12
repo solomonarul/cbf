@@ -45,7 +45,7 @@ typedef struct bf_state
 {
     bf_input_f in;
     bf_output_f out;
-    bf_optimizations_t optimizations;
+    uint8_t* memory;
     void* aux_arg;
 } bf_state_t;
 
