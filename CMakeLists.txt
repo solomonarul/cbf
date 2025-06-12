@@ -58,7 +58,7 @@ if(BUILD_TESTS)
 file(
     GLOB_RECURSE
     ${PROJECT_NAME}_TEST_SRC
-        "test/*.c"
+        "test/main.c"
 )
 
 add_executable(
