@@ -86,7 +86,7 @@ size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, 
         {
             jit_ldr_c(JIT_R0, JIT_V0);
         
-            // Branch if R1 is not zero.
+            // Branch if R0 is not zero.
             jit_pointer_t start_label = *(jit_pointer_t*)dynarray_get(loopStartLabel, loopStartLabel.size - 1);
             dynarray_pop_back(&loopStartLabel);
 
@@ -135,6 +135,73 @@ size_t bf_jit_lightning_load_program(bf_jit_lightning_t* self, char* const rom, 
         case BF_INSTRUCTION_MOVE:
             jit_addi(JIT_V0, JIT_V0, (int16_t)instruction->arg);
             break;
+
+        // jump forward if memory[P] is zero and args > 0
+        // jump backward if memory[P] is not zero and args < 0
+        case BF_INSTRUCTION_JUMP:
+        {
+            jit_ldr_c(JIT_R0, JIT_V0);
+
+            if((int16_t)instruction->arg > 0)
+            {
+                // Branch if R0 is zero, this will be emitted in the later branch.
+                jit_pointer_t end_jump = _jit_new_node_pww(self->jit_state, jit_code_beqi, jit_forward(), JIT_R0, 0);
+                dynarray_push_back(&loopEndLabel, &end_jump);
+
+                jit_pointer_t start_label = jit_label();
+                dynarray_push_back(&loopStartLabel, &start_label);
+            }
+            else
+            {
+                // Branch if R0 is not zero.
+                jit_pointer_t start_label = *(jit_pointer_t*)dynarray_get(loopStartLabel, loopStartLabel.size - 1);
+                dynarray_pop_back(&loopStartLabel);
+
+                jit_pointer_t end_label = *(jit_pointer_t*)dynarray_get(loopEndLabel, loopEndLabel.size - 1);
+                dynarray_pop_back(&loopEndLabel);
+
+                start_jump = _jit_new_node_pww(self->jit_state, jit_code_bnei, NULL, JIT_R0, 0);
+                jit_patch(end_label);
+                jit_patch_at(start_jump, start_label);
+            }
+            break;
+        }
+
+        // Composite instructions start here.
+        
+            // memory[P] = 0
+        case BF_INSTRUCTION_CLR:
+            jit_movi(JIT_R0, 0);                                // R0 = 0
+            jit_str_c(JIT_V0, JIT_R0);                          // memory[P] = R0
+            break;
+
+            // memory[P + args] += memory[P]
+            // memory[P] = 0
+        case BF_INSTRUCTION_ADDCLR:
+            jit_movr(JIT_R0, JIT_V0);                           //
+            jit_addi(JIT_R0, JIT_R0, (int16_t)instruction->arg);         // R0 = P + args
+            jit_ldr_c(JIT_R1, JIT_R0);                          // R1 = memory[P + args]
+            jit_ldr_c(JIT_R2, JIT_V0);                          // R2 = memory[P]
+            jit_addr(JIT_R1, JIT_R1, JIT_R2);                   // R1 += R2
+            jit_str_c(JIT_R0, JIT_R1);                          // memory[P + args] = R1
+            jit_movi(JIT_R0, 0);                                // R0 = 0
+            jit_str_c(JIT_V0, JIT_R0);                          // memory[P] = 0
+            break;
+
+            // P += args while memory[P] != 0
+        case BF_INSTRUCTION_MOVNZ:
+        {
+            // This shouldn't actually improve anything JIT-wise as it should generate the same code as the unwrapped sequence.
+            jit_ldr_c(JIT_R0, JIT_V0);
+            jit_pointer_t start_jump = _jit_new_node_pww(self->jit_state, jit_code_beqi, jit_forward(), JIT_R0, 0);
+            jit_pointer_t start_label = jit_label();
+            jit_addi(JIT_V0, JIT_V0, (int16_t)instruction->arg);
+            jit_ldr_c(JIT_R0, JIT_V0);
+            jit_pointer_t end_jump = _jit_new_node_pww(self->jit_state, jit_code_bnei, NULL, JIT_R0, 0);
+            jit_patch(start_jump);
+            jit_patch_at(end_jump, start_label);
+            break;
+        }
         }
     }
     jit_epilog();

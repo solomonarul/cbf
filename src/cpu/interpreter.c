@@ -16,31 +16,34 @@ void bf_interpreter_step(bf_interpreter_t* self)
 {
     if(!self->running) return;
     bf_state_t* const state = self->state;
-    bf_instruction_t* current = dynarray_get(self->program, self->pc);
-    self->pc++;
-    switch(current->op)
+    bf_instruction_t* instruction = dynarray_get(self->program, self->pc);
+    switch(instruction->op)
     {
     case BF_INSTRUCTION_INC:
         {
             state->memory[self->index]++;
+            self->pc++;
             break;   
         }
 
     case BF_INSTRUCTION_DEC:
         {
             state->memory[self->index]--;
+            self->pc++;
             break;   
         }
 
     case BF_INSTRUCTION_NEXT:
         {
             self->index++;
+            self->pc++;
             break;
         }
 
     case BF_INSTRUCTION_PREV:
         {
             self->index--;
+            self->pc++;
             break;
         }
     
@@ -51,11 +54,13 @@ void bf_interpreter_step(bf_interpreter_t* self)
                 int depth = 1;
                 while (depth > 0 && self->pc < self->program.size)
                 {
-                    bf_instruction_t* instr = dynarray_get(self->program, self->pc++);
+                    bf_instruction_t* instr = dynarray_get(self->program, ++self->pc);
                     if (instr->op == BF_INSTRUCTION_JUMP_START) depth++;
                     else if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth--;
                 }
             }
+            else
+                self->pc++;
             break;
         }
     
@@ -64,21 +69,24 @@ void bf_interpreter_step(bf_interpreter_t* self)
             if (state->memory[self->index] != 0)
             {
                 int depth = 1;
-                self->pc -= 2;
+                self->pc -= 1;
                 while (depth > 0 && self->pc < self->program.size)
                 {
                     bf_instruction_t* instr = dynarray_get(self->program, self->pc--);
                     if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth++;
                     else if (instr->op == BF_INSTRUCTION_JUMP_START) depth--;
                 }
-                self->pc += 2;
+                self->pc += 1;
             }
+            else
+                self->pc++;
             break;
         }
+
     case BF_INSTRUCTION_INPUT:
         {
-            if(state->in != NULL)
-                state->memory[self->index] = state->in(state->aux_arg);
+            state->memory[self->index] = (state->in != NULL) ? state->in(state->aux_arg) : 0;
+            self->pc++;
             break;
         }
 
@@ -86,18 +94,53 @@ void bf_interpreter_step(bf_interpreter_t* self)
         {
             if(state->out != NULL)
                 state->out(state->aux_arg, state->memory[self->index]);
+            self->pc++;
             break;
         }
 
     case BF_INSTRUCTION_ADD:
         {
-            state->memory[self->index] += (int16_t)current->arg;
+            state->memory[self->index] += (int16_t)instruction->arg;
+            self->pc++;
             break;
         }
 
     case BF_INSTRUCTION_MOVE:
         {
-            self->index += (int16_t)current->arg;
+            self->index += (int16_t)instruction->arg;
+            self->pc++;
+            break;
+        }
+
+    case BF_INSTRUCTION_JUMP:
+        {
+            if((int16_t)instruction->arg > 0)
+                self->pc += (state->memory[self->index] == 0) ? (int16_t)instruction->arg : 1; // Jump ahead if value is 0.
+            else
+                self->pc += (state->memory[self->index] != 0) ? (int16_t)instruction->arg : 1; // Jump behind if value is less than 0.
+            break;
+        }
+
+    case BF_INSTRUCTION_CLR:
+        {
+            state->memory[self->index] = 0;
+            self->pc++;
+            break;
+        }
+
+    case BF_INSTRUCTION_ADDCLR:
+        {
+            state->memory[self->index + (int16_t)instruction->arg] += state->memory[self->index];
+            state->memory[self->index] = 0;
+            self->pc++;
+            break;
+        }
+
+    case BF_INSTRUCTION_MOVNZ:
+        {
+            while(state->memory[self->index] != 0)
+                self->index += (int16_t)instruction->arg;
+            self->pc++;
             break;
         }
         

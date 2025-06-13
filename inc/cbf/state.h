@@ -26,7 +26,13 @@ typedef enum bf_operation
 
     // Optimized instructions
     BF_INSTRUCTION_ADD,
-    BF_INSTRUCTION_MOVE
+    BF_INSTRUCTION_MOVE,
+    BF_INSTRUCTION_JUMP,
+
+    // Composite instructions
+    BF_INSTRUCTION_CLR,
+    BF_INSTRUCTION_ADDCLR,
+    BF_INSTRUCTION_MOVNZ
 } bf_operation_t;
 
 typedef struct bf_instruction
@@ -38,6 +44,8 @@ typedef struct bf_instruction
 typedef enum bf_optimizations {
     BF_OPTIMIZATIONS_NONE = 0,
     BF_OPTIMIZATIONS_INSTRUCTION_FOLDING,
+    BF_OPTIMIZATIONS_JUMP_CACHING,
+    BF_OPTIMIZATIONS_LOOP_REPLACEMENT,
     BF_OPTIMIZATIONS_ALL
 } bf_optimizations_t;
 
