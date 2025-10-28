@@ -78,6 +78,10 @@ set_property(
     TARGET ${PROJECT_NAME}_test
     PROPERTY C_STANDARD 23
 )
+
+install(
+    TARGETS ${PROJECT_NAME}_test
+)
 endif()
 
 if(BUILD_BENCHMARKS)
