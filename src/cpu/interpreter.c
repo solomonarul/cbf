@@ -46,42 +46,6 @@ void bf_interpreter_step(bf_interpreter_t* self)
             self->pc++;
             break;
         }
-    
-    case BF_INSTRUCTION_JUMP_START:
-        {
-            if (state->memory[self->index] == 0)
-            {
-                int depth = 1;
-                while (depth > 0 && self->pc < self->program.size)
-                {
-                    bf_instruction_t* instr = dynarray_get(self->program, ++self->pc);
-                    if (instr->op == BF_INSTRUCTION_JUMP_START) depth++;
-                    else if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth--;
-                }
-            }
-            else
-                self->pc++;
-            break;
-        }
-    
-    case BF_INSTRUCTION_JUMP_BACK:
-        {
-            if (state->memory[self->index] != 0)
-            {
-                int depth = 1;
-                self->pc -= 1;
-                while (depth > 0 && self->pc < self->program.size)
-                {
-                    bf_instruction_t* instr = dynarray_get(self->program, self->pc--);
-                    if (instr->op == BF_INSTRUCTION_JUMP_BACK) depth++;
-                    else if (instr->op == BF_INSTRUCTION_JUMP_START) depth--;
-                }
-                self->pc += 1;
-            }
-            else
-                self->pc++;
-            break;
-        }
 
     case BF_INSTRUCTION_INPUT:
         {
@@ -152,8 +116,8 @@ void bf_interpreter_step(bf_interpreter_t* self)
     }
 }
 
-size_t bf_interpreter_load_program(bf_interpreter_t* self, char* const rom, bf_optimizations_t optimizations)
+size_t bf_interpreter_load_program(bf_interpreter_t* self, char* const rom)
 {
-    self->program = bf_compile_program(rom, optimizations);
+    self->program = bf_compile_program(rom);
     return self->program.size;
 }

@@ -81,7 +81,7 @@ void bf_check_hotloops(dynarray_t* result)
     }
 }
 
-dynarray_t bf_compile_program(char* const program, bf_optimizations_t optimizations)
+dynarray_t bf_compile_program(char* const program)
 {
     dynarray_t result;
     dynarray_init(&result, sizeof(bf_instruction_t), 0);
@@ -92,168 +92,118 @@ dynarray_t bf_compile_program(char* const program, bf_optimizations_t optimizati
         {
         case '+':
             {
-                if(optimizations < BF_OPTIMIZATIONS_INSTRUCTION_FOLDING)
+                if(result.size == 0) goto bf_state_load_program_add_anyway;
+                bf_instruction_t* const last = dynarray_get(result, result.size - 1);
+                if(last->op == BF_INSTRUCTION_ADD)
                 {
-                    element.op = BF_INSTRUCTION_INC;
-                    element.arg = 0;
-                    dynarray_push_back(&result, &element);
+                    last->arg = (int16_t)last->arg + 1;
+                    if(last->arg == 0)
+                        dynarray_pop_back(&result);
                 }
                 else {
-                    if(result.size == 0) goto bf_state_load_program_add_anyway;
-                    bf_instruction_t* const last = dynarray_get(result, result.size - 1);
-                    if(last->op == BF_INSTRUCTION_ADD)
-                    {
-                        last->arg = (int16_t)last->arg + 1;
-                        if(last->arg == 0)
-                            dynarray_pop_back(&result);
-                    }
-                    else {
-                    bf_state_load_program_add_anyway:
-                        element.op = BF_INSTRUCTION_ADD;
-                        element.arg = 1;
-                        dynarray_push_back(&result, &element);
-                    }
+                bf_state_load_program_add_anyway:
+                    element.op = BF_INSTRUCTION_ADD;
+                    element.arg = 1;
+                    dynarray_push_back(&result, &element);
                 }
                 break;
             }
         case '-':
             {
-                if(optimizations < BF_OPTIMIZATIONS_INSTRUCTION_FOLDING)
+                if(result.size == 0) goto bf_state_load_program_remove_anyway;
+
+                bf_instruction_t* const last = dynarray_get(result, result.size - 1);
+                if(last->op == BF_INSTRUCTION_ADD)
                 {
-                    element.op = BF_INSTRUCTION_DEC;
-                    element.arg = 0;
-                    dynarray_push_back(&result, &element);
+                    last->arg = (int16_t)last->arg - 1;
+                    if(last->arg == 0)
+                        dynarray_pop_back(&result);
                 }
                 else {
-                    if(result.size == 0) goto bf_state_load_program_remove_anyway;
-
-                    bf_instruction_t* const last = dynarray_get(result, result.size - 1);
-                    if(last->op == BF_INSTRUCTION_ADD)
-                    {
-                        last->arg = (int16_t)last->arg - 1;
-                        if(last->arg == 0)
-                            dynarray_pop_back(&result);
-                    }
-                    else {
-                    bf_state_load_program_remove_anyway:
-                        element.op = BF_INSTRUCTION_ADD;
-                        element.arg = (int16_t)-1;
-                        dynarray_push_back(&result, &element);
-                    }
+                bf_state_load_program_remove_anyway:
+                    element.op = BF_INSTRUCTION_ADD;
+                    element.arg = (int16_t)-1;
+                    dynarray_push_back(&result, &element);
                 }
                 break;
             }
         case '>':
             {
-                if(optimizations < BF_OPTIMIZATIONS_INSTRUCTION_FOLDING)
+                if(result.size == 0) goto bf_state_load_program_next_anyway;
+
+                bf_instruction_t* const last = dynarray_get(result, result.size - 1);
+                if(last->op == BF_INSTRUCTION_MOVE)
                 {
-                    element.op = BF_INSTRUCTION_NEXT;
-                    element.arg = 0;
-                    dynarray_push_back(&result, &element);
+                    last->arg = (int16_t)last->arg + 1;
+                    if(last->arg == 0)
+                        dynarray_pop_back(&result);
                 }
                 else {
-                    if(result.size == 0) goto bf_state_load_program_next_anyway;
-
-                    bf_instruction_t* const last = dynarray_get(result, result.size - 1);
-                    if(last->op == BF_INSTRUCTION_MOVE)
-                    {
-                        last->arg = (int16_t)last->arg + 1;
-                        if(last->arg == 0)
-                            dynarray_pop_back(&result);
-                    }
-                    else {
-                    bf_state_load_program_next_anyway:
-                        element.op = BF_INSTRUCTION_MOVE;
-                        element.arg = 1;
-                        dynarray_push_back(&result, &element);
-                    }
+                bf_state_load_program_next_anyway:
+                    element.op = BF_INSTRUCTION_MOVE;
+                    element.arg = 1;
+                    dynarray_push_back(&result, &element);
                 }
                 break;
             }
         case '<':
             {
-                if(optimizations < BF_OPTIMIZATIONS_INSTRUCTION_FOLDING)
+                if(result.size == 0) goto bf_state_load_program_prev_anyway;
+
+                bf_instruction_t* const last = dynarray_get(result, result.size - 1);
+                if(last->op == BF_INSTRUCTION_MOVE)
                 {
-                    element.op = BF_INSTRUCTION_PREV;
-                    element.arg = 0;
-                    dynarray_push_back(&result, &element);
+                    last->arg = (int16_t)last->arg - 1;
+                    if(last->arg == 0)
+                        dynarray_pop_back(&result);
                 }
                 else {
-                    if(result.size == 0) goto bf_state_load_program_prev_anyway;
-
-                    bf_instruction_t* const last = dynarray_get(result, result.size - 1);
-                    if(last->op == BF_INSTRUCTION_MOVE)
-                    {
-                        last->arg = (int16_t)last->arg - 1;
-                        if(last->arg == 0)
-                            dynarray_pop_back(&result);
-                    }
-                    else {
-                    bf_state_load_program_prev_anyway:
-                        element.op = BF_INSTRUCTION_MOVE;
-                        element.arg = (int16_t)-1;
-                        dynarray_push_back(&result, &element);
-                    }
+                bf_state_load_program_prev_anyway:
+                    element.op = BF_INSTRUCTION_MOVE;
+                    element.arg = (int16_t)-1;
+                    dynarray_push_back(&result, &element);
                 }
                 break;
             }
         case '[':
             {
-                if(optimizations < BF_OPTIMIZATIONS_JUMP_CACHING)
-                {
-                    element.op = BF_INSTRUCTION_JUMP_START;
-                    element.arg = -1;
-                    dynarray_push_back(&result, &element);
-                }
-                else {
-                    element.op = BF_INSTRUCTION_JUMP;
-                    element.arg = 0;
-                    dynarray_push_back(&result, &element);
-                }
+                element.op = BF_INSTRUCTION_JUMP;
+                element.arg = 0;
+                dynarray_push_back(&result, &element);
                 break;
             }
         case ']':
             {
-                if(optimizations < BF_OPTIMIZATIONS_JUMP_CACHING)
+                bf_instruction_t* current_instruction;
+
+                // Find previous open bracket.
+                for(uint32_t index = result.size - 1; index < result.size; index--)
                 {
-                    element.op = BF_INSTRUCTION_JUMP_BACK;
-                    element.arg = -1;
-                    dynarray_push_back(&result, &element);
-                }
-                else {
-                    bf_instruction_t* current_instruction;
-
-                    // Find previous open bracket.
-                    for(uint32_t index = result.size - 1; index < result.size; index--)
+                    current_instruction = dynarray_get(result, index);
+                    
+                    // Found it.
+                    if(current_instruction->op == BF_INSTRUCTION_JUMP && current_instruction->arg == 0)
                     {
-                        current_instruction = dynarray_get(result, index);
-                        
-                        // Found it.
-                        if(current_instruction->op == BF_INSTRUCTION_JUMP && current_instruction->arg == 0)
+                        if(index == result.size - 1)
                         {
-                            if(index == result.size - 1)
-                            {
-                                dynarray_pop_back(&result);
-                                break;
-                            }
-
-                            current_instruction->arg = result.size - index + 1;
-                            element.op = BF_INSTRUCTION_JUMP;
-                            element.arg = index - result.size + 1;
-                            dynarray_push_back(&result, &element);
+                            dynarray_pop_back(&result);
                             break;
                         }
 
-                        if(index == 0)
-                        {
-                            // TODO: handle unmatched [.
-                            break;
-                        }
+                        current_instruction->arg = result.size - index + 1;
+                        element.op = BF_INSTRUCTION_JUMP;
+                        element.arg = index - result.size + 1;
+                        dynarray_push_back(&result, &element);
+                        break;
                     }
 
-                    if(optimizations >= BF_OPTIMIZATIONS_LOOP_REPLACEMENT)
-                        bf_check_hotloops(&result);
+                    if(index == 0)
+                    {
+                        // TODO: handle unmatched [.
+                        break;
+                    }
                 }
+                bf_check_hotloops(&result);
                 break;
             }
         case ',':
